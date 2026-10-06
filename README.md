@@ -1,0 +1,149 @@
+<p align="center">
+  <img src="img/trace_logo.svg" alt="TRACE" width="260">
+</p>
+
+# TRACE
+
+## Description
+
+TRACE calculates RNA modification indexes from sequencing data that were transcriptome 
+algined. It compares a **treated** sample (e.g. with a RNAmodification enzyme) 
+with a **control** sample and reports, for every position (**site index**) or 
+every transcript (**gene index**), the fraction of reads that carry the modification  
+signature, the difference between the samples and a χ² p-value.
+
+TRACE works on per-position nucleotide count tables (`.rds`, `.csv`, `.tsv` or
+`.parquet`). It handles tables with tens of millions of positions in under a
+minute.
+
+## Installation
+
+Python ≥ 3.10 is required.
+
+```bash
+pip install "TRACE[rds] @ git+https://github.com/MonikaWitzenberger/TRACE"
+trace --version
+```
+
+For `.rds` input, [R](https://www.r-project.org/) with the package `arrow` or
+`data.table` is recommended. TRACE then calls R in the background to read the
+files, which is much faster than reading them in Python. If R is not found
+automatically, set the environment variable `TRACE_RSCRIPT` to the full path of
+`Rscript`.
+
+## Usage
+
+```bash
+trace siteindex --treated TREATED --control CONTROL --method METHOD -o OUTPUT [options]
+trace geneindex --treated TREATED --control CONTROL --method METHOD -o OUTPUT [options]
+```
+
+| option | |
+|---|---|
+| `--method` | modification method, see [Methods](#methods) |
+| `--snps FILE` | positions to exclude, e.g. known SNPs |
+| `--reference FILE` | original transcriptome FASTA for bisulfite methods (`m5C`, `m5C_CC`, `m6A`) |
+| `--cov-threshold N` | site index only: minimum coverage per site (default 20) |
+| `--always-keep-chr NAME` | always keep this transcript, e.g. a spike-in |
+| `--experiment NAME` | label written to the `experiment` column |
+| `--overwrite` | replace an existing output file |
+
+`trace methods` lists all methods; `trace siteindex --help` shows all options.
+Many sample pairs can be run at once from a sample sheet with `trace batch`
+(see `trace batch --help`).
+
+### Input files
+
+**Count tables** (`--treated`, `--control`): one row per transcript position,
+as `.rds`, `.csv`, `.csv.gz`, `.tsv` or `.parquet`. Other columns are ignored.
+
+| chr | gencoor | cov | refSeq | A | C | G | T | - |
+|---|---|---|---|---|---|---|---|---|
+| tx_1 | 1 | 120 | A | 101 | 0 | 19 | 0 | 0 |
+| tx_1 | 2 | 118 | C | 0 | 117 | 0 | 1 | 0 |
+
+`chr` transcript name, `gencoor` position (1-based), `cov` coverage, `refSeq`
+base of the sequence the reads were aligned to, `A`–`T` read counts per base,
+`-` deletions (needed for `pseudo` only).
+
+**SNP file** (`--snps`, optional): positions to exclude, as a column `pos`
+(`tx_1_1534`) or columns `chr` and `gencoor`.
+
+**Reference FASTA** (`--reference`, for `m5C`, `m5C_CC`, `m6A`): for these
+methods the reads were aligned to a converted transcriptome (C→T or A→G). TRACE 
+takes it from the FASTA of the original, unconverted transcriptome. The FASTA 
+names must match `chr`.
+
+
+### Methods
+
+| method | sequencing | site (`refSeq`) | modified reads | unmodified reads | reference |
+|---|---|---|---|---|---|
+| `AI` | RNA-seq | A | G | A | |
+| `CU` | RNA-seq | C | T | C | |
+| `m1A` | RNA-seq | A | C + G + T | A | |
+| `m1G` | RNA-seq | G | A + C + T | G | |
+| `ac4C` | ac4C-seq | C | T | C | [Sas-Chen *et al.*, *Nature* 2020](https://doi.org/10.1038/s41586-020-2418-2) |
+| `ac4C_CCG` | ac4C-seq, CCG motif only | C | T | C | [Sas-Chen *et al.*, *Nature* 2020](https://doi.org/10.1038/s41586-020-2418-2) |
+| `pseudo` | BID-seq | T | deletions | T | [Dai *et al.*, *Nat. Biotechnol.* 2023](https://doi.org/10.1038/s41587-022-01505-w) |
+| `m5C` | RNA bisulfite sequencing | T (original C) | C | T | [Schaefer *et al.*, *Nucleic Acids Res.* 2009](https://doi.org/10.1093/nar/gkn954) |
+| `m5C_CC` | RNA bisulfite sequencing, 5′ C or U | T (original C) | C | T | [Schaefer *et al.*, *Nucleic Acids Res.* 2009](https://doi.org/10.1093/nar/gkn954) |
+| `m6A` | GLORI | G (original A) | A | G | [Liu *et al.*, *Nat. Biotechnol.* 2023](https://doi.org/10.1038/s41587-022-01487-9) |
+
+**Site index** = modified / (modified + unmodified reads), per site and sample.
+Sites are kept if they have the right base (and motif), coverage ≥ 20, are not
+in the SNP file and are present in both samples.
+
+**Gene index** = summed modified / (summed modified + summed unmodified reads)
+over all such sites of a transcript, without a coverage filter.
+
+### Output
+
+One row per site or gene; `.x` = treated, `.y` = control.
+
+| column | |
+|---|---|
+| `siteindex.x/.y` or `geneindex.x/.y` | site index or gene index |
+| `diff` | treated − control |
+| `log2FC` | log2(treated / control) |
+| `pVal`, `mlog10_pVal` | χ² test treated vs. control, and −log10 of it |
+| `cov`, `A`, `C`, `G`, `T` (site) / `sumCov`, `sumA`, … (gene) | coverage and read counts |
+| `experiment`, `datafile1`, `datafile2` | label, treated file name, control file name |
+
+The output format follows the file ending: `.csv`, `.csv.gz`, `.tsv` or `.parquet`.
+
+## Quick examples
+
+The repository contains small, made-up example data in `tests/data`. After
+downloading the repository:
+
+**A-to-I site index**
+
+```bash
+trace siteindex --treated tests/data/ai_treated.csv --control tests/data/ai_control.csv --method AI --snps tests/data/snps.csv -o AI_siteindex.csv
+```
+
+```
+pos          cov.x  cov.y  siteindex.x  siteindex.y  diff    pVal
+tx_beta_76   300    300    0.1852       0.0704       0.1148  0.0001
+tx_alpha_38  150    150    0.1973       0.0504       0.1469  0.0004
+...
+```
+
+**m5C gene index** (bisulfite data, needs the original FASTA)
+
+```bash
+trace geneindex --treated tests/data/m5c_treated.csv --control tests/data/m5c_control.csv --method m5C --reference tests/data/transcripts.fa -o m5C_geneindex.csv
+```
+
+```
+chr.x     sumCov.x  sumCov.y  geneindex.x  geneindex.y  diff    pVal
+spikeIn   523       904       0.3728       0.0431       0.3297  0.0
+tx_alpha  3615      3271      0.4108       0.0538       0.3570  0.0
+tx_beta   1974      2680      0.3840       0.0541       0.3299  0.0
+```
+
+
+## License
+
+MIT, see [LICENSE](LICENSE).

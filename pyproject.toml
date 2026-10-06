@@ -1,0 +1,34 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "TRACE"
+version = "0.16.0"
+description = "RNA modification site index and gene index from per-position nucleotide count tables"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Monika Witzenberger" }]
+license = "MIT"
+dependencies = [
+    "polars>=1.20",
+    "numpy>=1.24",
+    "scipy>=1.10",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+
+[project.optional-dependencies]
+rds = ["pyreadr>=0.5", "pandas>=2.0", "pyarrow>=14"]
+test = ["pytest>=7", "pyreadr>=0.5", "pandas>=2.0", "pyarrow>=14"]
+
+[project.scripts]
+trace = "trace_rna.cli:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/trace_rna"]

@@ -1,0 +1,33 @@
+# Files listed here are never uploaded to GitHub (git ignores them).
+# "*" means "anything", a leading "!" means "except".
+
+# Created automatically by Python, pip and pytest
+__pycache__/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.venv/
+
+# Editor settings and Mac/Windows folder clutter
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Half-written result files from an interrupted run
+*.part*
+
+# Your own data and results: never upload these (large, possibly unpublished)
+*.rds
+*.parquet
+*.bam
+*.bai
+*.fa
+*.fasta
+*.fa.gz
+/data/
+/results/
+
+# ... except the small made-up test data
+!tests/data/*.fa
