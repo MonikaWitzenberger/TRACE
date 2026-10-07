@@ -14,7 +14,7 @@ signature, the difference between the samples and a χ² p-value.
 
 TRACE works on per-position nucleotide count tables (`.rds`, `.csv`, `.tsv` or
 `.parquet`). It handles tables with tens of millions of positions in under a
-minute. Here, per-position nucleotide tables were made by txtools (https://github.com/AngelCampos/txtools) ([García-Campos *et al.*, *Nucleic Acids Res.* 2024](https://doi.org/10.1093/nar/gkae203))
+minute. Per-position nucleotide tables are made by txtools (https://github.com/AngelCampos/txtools) ([García-Campos *et al.*, *Nucleic Acids Res.* 2024](https://doi.org/10.1093/nar/gkae203))
 
 ## Installation
 
