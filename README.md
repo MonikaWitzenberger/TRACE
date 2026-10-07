@@ -82,7 +82,7 @@ names must match `chr`.
 | `ac4C_CCG` | ac4C-seq, CCG motif only | C | T | C | [Sas-Chen *et al.*, *Nature* 2020](https://doi.org/10.1038/s41586-020-2418-2) |
 | `pseudo` | BID-seq | T | deletions | T | [Dai *et al.*, *Nat. Biotechnol.* 2023](https://doi.org/10.1038/s41587-022-01505-w) |
 | `m5C` | RNA bisulfite sequencing | T (original C) | C | T | [Schaefer *et al.*, *Nucleic Acids Res.* 2009](https://doi.org/10.1093/nar/gkn954) |
-| `m5C_CC` | RNA bisulfite sequencing, 5′ C or U | T (original C) | C | T | [Schaefer *et al.*, *Nucleic Acids Res.* 2009](https://doi.org/10.1093/nar/gkn954) |
+| `m5C_CC` | RNA bisulfite sequencing, 5′ C or T | T (original C) | C | T | [Schaefer *et al.*, *Nucleic Acids Res.* 2009](https://doi.org/10.1093/nar/gkn954) |
 | `m6A` | GLORI | G (original A) | A | G | [Liu *et al.*, *Nat. Biotechnol.* 2023](https://doi.org/10.1038/s41587-022-01487-9) |
 
 **Site index** = modified / (modified + unmodified reads), per site and sample.
