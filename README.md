@@ -12,8 +12,7 @@ with a **control** sample and reports, for every position (**site index**) or
 every transcript (**gene index**), the fraction of reads that carry the modification  
 signature, the difference between the samples and a χ² p-value.
 
-TRACE works on per-position nucleotide count tables (`.rds`, `.csv`, `.tsv` or
-`.parquet`). It handles tables with tens of millions of positions in under a
+TRACE works on per-position nucleotide count tables (`.rds`, `.csv`). It handles tables with tens of millions of positions in under a
 minute. Per-position nucleotide tables are made by txtools (https://github.com/AngelCampos/txtools) ([García-Campos *et al.*, *Nucleic Acids Res.* 2024](https://doi.org/10.1093/nar/gkae203))
 
 ## Installation
@@ -94,7 +93,7 @@ Sites are kept if they have the right base (and motif), coverage ≥ 20, are not
 in the SNP file and are present in both samples.
 
 **Gene index** = summed modified / (summed modified + summed unmodified reads)
-over all such sites of a transcript, without a coverage filter.
+over all such sites of a transcript, without a coverage filter. Filters on transcript level can be applied when generating the count-table e.g. with the txtools function --minReadsGene NUMBER
 
 ### Output
 
