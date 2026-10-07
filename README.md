@@ -9,8 +9,7 @@
 TRACE calculates RNA modification indexes from sequencing data that were transcriptome 
 aligned. It compares a **treated** sample (e.g. with a RNA modification enzyme) 
 with a **control** sample and reports, for every position (**site index**) or 
-every transcript (**gene index**), the fraction of reads that carry the modification  
-signature, the difference between the samples and a χ² p-value.
+every transcript (**gene index**), the fraction of reads that carry the modification signature, the difference between the samples and a χ² p-value.
 
 TRACE works on per-position nucleotide count tables (`.rds`, `.csv`). It handles tables with tens of millions of positions in under a
 minute. Per-position nucleotide tables are made by txtools (https://github.com/AngelCampos/txtools) ([García-Campos *et al.*, *Nucleic Acids Res.* 2024](https://doi.org/10.1093/nar/gkae203))
@@ -47,9 +46,7 @@ trace geneindex --treated TREATED --control CONTROL --method METHOD -o OUTPUT [o
 | `--experiment NAME` | label written to the `experiment` column |
 | `--overwrite` | replace an existing output file |
 
-`trace methods` lists all methods; `trace siteindex --help` shows all options.
-Many sample pairs can be run at once from a sample sheet with `trace batch`
-(see `trace batch --help`).
+`trace methods` lists all methods. `trace siteindex --help` shows all options. `trace --help` shows all functions.
 
 ### Input files
 
@@ -108,7 +105,7 @@ One row per site or gene; `.x` = treated, `.y` = control.
 | `cov`, `A`, `C`, `G`, `T` (site) / `sumCov`, `sumA`, … (gene) | coverage and read counts |
 | `experiment`, `datafile1`, `datafile2` | label, treated file name, control file name |
 
-The output format follows the file ending: `.csv`, `.csv.gz`, `.tsv` or `.parquet`.
+The output format follows the file ending: `.csv`, `.tsv`.
 
 ## Quick examples
 
